@@ -1,0 +1,10 @@
+let applied='';
+function draw(){const c=Store.cart();const root=$('#cart');if(!c.length){root.innerHTML='<div class="stub"><h2>Your bag is empty</h2><p></p><a class="btn" href="shop.html">Continue shopping</a></div>';Store.badges();return}
+ const sub=c.reduce((a,l)=>a+PRODUCTS.find(p=>p.id===l.id).price*l.qty,0),disc=Math.round(sub*(COUPONS[applied]||0)),ship=(sub-disc>=FREE_SHIP_OVER)?0:SHIP_FLAT;
+ root.innerHTML=`<div class="cart"><div>${c.map((l,i)=>{const p=PRODUCTS.find(x=>x.id===l.id);return `<div class="crow"><div><a href="product.html?slug=${p.slug}"><b>${p.name}</b></a><br><small>${l.color} · ${l.size}</small></div>
+ <div class="qty"><button data-i="${i}" data-d="-1" aria-label="Decrease">−</button><span>${l.qty}</span><button data-i="${i}" data-d="1" aria-label="Increase">+</button></div><span>${inr(p.price*l.qty)}</span><button class="opt" data-i="${i}" data-d="x">Remove</button></div>`}).join('')}</div>
+ <aside class="sum"><div style="display:flex;gap:8px"><input id="code" placeholder="Coupon (try NOOR10)" aria-label="Coupon code"><button class="btn line" id="apply">Apply</button></div><p id="cmsg" style="font-size:12px;color:var(--gold)"></p>
+ <p><span>Subtotal</span>${inr(sub)}</p>${disc?`<p><span>Discount (${applied})</span>−${inr(disc)}</p>`:''}<p><span>Shipping (sample rule)</span>${ship?inr(ship):'Free'}</p><p style="border-top:1px solid #0003;padding-top:10px;font-size:1.2rem"><span>Total</span>${inr(sub-disc+ship)}</p>
+ <a class="btn" style="width:100%;text-align:center" href="checkout.html">Checkout (demo)</a><p style="font-size:12px;color:var(--mute)">Demo coupons and shipping. No real payment is processed.</p></aside></div>`;Store.badges()}
+$('#cart').addEventListener('click',e=>{const t=e.target,c=Store.cart();if(t.dataset.d){const i=+t.dataset.i;t.dataset.d==='x'?c.splice(i,1):c[i].qty+=+t.dataset.d;if(c[i]&&c[i].qty<1)c.splice(i,1);ls.set('nc_cart',c);draw()}
+ if(t.id==='apply'){const k=$('#code').value.trim().toUpperCase();applied=COUPONS[k]?k:'';draw();$('#cmsg').textContent=applied?'Coupon applied.':'Invalid demo coupon.'}});draw();
